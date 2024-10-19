@@ -103,21 +103,28 @@ class _RecoveryPageState extends State<RecoveryPage> {
         'ownAnswer': _hashData(_customAnswerController.text),
       };
 
+      // Validate Name and DOB
       if (recoveryData['name'] != hashedName || recoveryData['dob'] != hashedDOB) {
         _showError('Name or Date of Birth does not match our records.');
         return;
       }
 
+      // Count how many recovery answers are correct
+      int correctAnswers = 0;
       for (var key in hashedAnswers.keys) {
-        if (recoveryData[key] != hashedAnswers[key]) {
-          _showError('Recovery answers do not match our records.');
-          return;
+        if (recoveryData[key] == hashedAnswers[key]) {
+          correctAnswers++;
         }
       }
 
-      setState(() {
-        _currentStep++;
-      });
+      // Allow to proceed if at least two answers are correct
+      if (correctAnswers >= 2) {
+        setState(() {
+          _currentStep++;
+        });
+      } else {
+        _showError('At least two recovery answers must match our records.');
+      }
     } catch (e) {
       _showError('An error occurred during recovery. Please try again.');
     } finally {
@@ -126,6 +133,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
       });
     }
   }
+
 
   void _resetPassword() async {
     setState(() {
