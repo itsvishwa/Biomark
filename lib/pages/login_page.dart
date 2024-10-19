@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:biomark/pages/profile_page.dart';
 import 'package:biomark/pages/register_page.dart';
+import 'package:biomark/pages/forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -123,6 +124,21 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 25),
               _buildTextField("Email", _emailController, _emailError),
               _buildTextField("Password", _passwordController, _passwordError, obscureText: true),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                  );
+                },
+                child: Text(
+                  "Forgot Password?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               _isLoading
                   ? CircularProgressIndicator()
