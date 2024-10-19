@@ -198,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
                     },
                     child: Text(
-                      "Login Now",
+                      "Login",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.inversePrimary,

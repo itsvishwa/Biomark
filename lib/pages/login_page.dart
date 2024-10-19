@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
       if (querySnapshot.docs.isNotEmpty) {
         // Successful login
         final userDoc = querySnapshot.docs.first;
-        print('Login successful for user: ${userDoc['model']}');
+        print('Login successful for user: ${userDoc['account']['email']}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Login Successful!'),
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const ProfilePage()),
+          MaterialPageRoute(builder: (context) => ProfilePage(email: userDoc['account']['email'])),
         );
       } else {
         // Invalid credentials
