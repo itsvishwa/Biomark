@@ -8,6 +8,7 @@ class RegisterPageStep3 extends StatefulWidget {
 }
 
 class RegisterPageStep3State extends State<RegisterPageStep3> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -15,6 +16,7 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
   // Function to save the form data
   Map<String, dynamic> saveData() {
     return {
+      'name': _nameController.text,
       'email': _emailController.text,
       'password': _passwordController.text,
     };
@@ -37,6 +39,8 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildTextField("Name", _nameController, false),
+        const SizedBox(height: 10),
         _buildTextField("Email", _emailController, false),
         const SizedBox(height: 10),
         _buildTextField("Password", _passwordController, true),

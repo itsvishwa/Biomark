@@ -1,7 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+
+
 import 'package:biomark/pages/register_step_1_page.dart';
 import 'package:biomark/pages/register_step_2_page.dart';
 import 'package:biomark/pages/register_step_3_page.dart';
-import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -16,6 +21,8 @@ class _RegisterPageState extends State<RegisterPage> {
   Map<String, dynamic> model = {};
   Map<String, dynamic> recovery = {};
   Map<String, dynamic> account = {};
+
+
 
   void _nextStep() {
     if (_currentStep == 0) {
@@ -83,11 +90,63 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _submitForm() {
-    print('Model: $model');
-    print('Recovery: $recovery');
-    print('Account: $account');
+    print('Submitting form...');
 
-    // Now you can send this data to your server or use it as needed.
+    if (model['timeOfBirth'] is TimeOfDay) {
+      final time = model['timeOfBirth'] as TimeOfDay;
+      model['timeOfBirth'] = "${time.hour}:${time.minute}";
+    }
+
+    model.forEach((key, value) {
+      if (value == null) {
+        print('$key is null, please fill out this field.');
+        return;
+      }
+    });
+
+    recovery.forEach((key, value) {
+      if (value == null) {
+        print('$key is null, please fill out this field.');
+        return;
+      }
+    });
+
+    account.forEach((key, value) {
+      if (value == null) {
+        print('$key is null, please fill out this field.');
+        return;
+      }
+    });
+
+    if (account['password'] != null) {
+      final hashedPassword = _hashData(account['password']);
+      account['password'] = hashedPassword;
+    }
+
+    recovery = recovery.map((key, value) {
+      if (value != null) {
+        return MapEntry(key, _hashData(value));
+      }
+      return MapEntry(key, value); // return the same key-value pair if value is null
+    });
+
+    FirebaseFirestore.instance.collection('users').add({
+      'model': model,
+      'recovery': recovery,
+      'account': account,
+    }).then((_) {
+      print('User registered successfully!');
+    }).catchError((error) {
+      print('Failed to register user: $error');
+    });
+  }
+
+
+  // Function to hash data using SHA-256
+  String _hashData(String data) {
+    final bytes = utf8.encode(data);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   @override
