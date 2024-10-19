@@ -13,15 +13,12 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   int _currentStep = 0;
 
-  // Data structures for the form data
   Map<String, dynamic> model = {};
   Map<String, dynamic> recovery = {};
   Map<String, dynamic> account = {};
 
-  // Function to move to the next step
   void _nextStep() {
     if (_currentStep == 0) {
-      // Save data from step 1 (model)
       final step1State = _getStep1State();
       if (step1State != null) {
         setState(() {
@@ -29,7 +26,6 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       }
     } else if (_currentStep == 1) {
-      // Save data from step 2 (recovery)
       final step2State = _getStep2State();
       if (step2State != null) {
         setState(() {
@@ -37,18 +33,16 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       }
     } else if (_currentStep == 2) {
-      // Save data from step 3 (account)
       final step3State = _getStep3State();
       if (step3State != null) {
         setState(() {
           account = step3State;
         });
-        _submitForm(); // Submit the form after final step
-        return; // End after submission
+        _submitForm();
+        return;
       }
     }
 
-    // Move to the next step
     if (_currentStep < 2) {
       setState(() {
         _currentStep += 1;
@@ -56,7 +50,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  // Function to go back to the previous step
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -65,7 +58,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  // Retrieve data from step 1 (form 1)
   Map<String, dynamic>? _getStep1State() {
     final step1Form = _step1Key.currentState;
     if (step1Form != null) {
@@ -74,7 +66,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-  // Retrieve data from step 2 (form 2)
   Map<String, dynamic>? _getStep2State() {
     final step2Form = _step2Key.currentState;
     if (step2Form != null) {
@@ -83,7 +74,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-  // Retrieve data from step 3 (form 3)
   Map<String, dynamic>? _getStep3State() {
     final step3Form = _step3Key.currentState;
     if (step3Form != null) {
@@ -92,7 +82,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-  // Submit the final form
   void _submitForm() {
     print('Model: $model');
     print('Recovery: $recovery');
