@@ -136,6 +136,21 @@ class _RegisterPageState extends State<RegisterPage> {
       'account': account,
     }).then((_) {
       print('User registered successfully!');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('User Registered Successfully!'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      setState(() {
+        model = {};
+        recovery = {};
+        account = {};
+        _currentStep = 0;
+      });
+      Navigator.pop(context);
     }).catchError((error) {
       print('Failed to register user: $error');
     });
