@@ -21,6 +21,36 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  Future<void> _unsubscribeUser(BuildContext context) async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('account.email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have been unsubscribed.')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User not found.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +98,28 @@ class ProfilePage extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // White background
+                    foregroundColor: Colors.black, // Black text
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                    ),
+                  ),
                   child: const Text('Log Out'),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () => _unsubscribeUser(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Red background to indicate danger
+                    foregroundColor: Colors.white, // White text
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Unsubscribe'),
                 ),
               ],
             ),

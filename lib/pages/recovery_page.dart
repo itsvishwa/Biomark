@@ -18,7 +18,6 @@ class _RecoveryPageState extends State<RecoveryPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Input Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _motherMaidenNameController = TextEditingController();
   final TextEditingController _bestFriendNameController = TextEditingController();
@@ -94,7 +93,6 @@ class _RecoveryPageState extends State<RecoveryPage> {
       final userDoc = query.docs.first;
       final recoveryData = userDoc.data()['recovery'];
 
-      // Hash user inputs for comparison
       final hashedName = _hashData(_nameController.text);
       final hashedDOB = _hashData(DateFormat('yyyy-MM-dd').format(_selectedDOB!));
       final hashedAnswers = {
@@ -105,13 +103,11 @@ class _RecoveryPageState extends State<RecoveryPage> {
         'ownAnswer': _hashData(_customAnswerController.text),
       };
 
-      // Verify name and DOB
       if (recoveryData['name'] != hashedName || recoveryData['dob'] != hashedDOB) {
         _showError('Name or Date of Birth does not match our records.');
         return;
       }
 
-      // Verify recovery answers
       for (var key in hashedAnswers.keys) {
         if (recoveryData[key] != hashedAnswers[key]) {
           _showError('Recovery answers do not match our records.');
@@ -119,7 +115,6 @@ class _RecoveryPageState extends State<RecoveryPage> {
         }
       }
 
-      // If all checks pass, proceed to password reset
       setState(() {
         _currentStep++;
       });
@@ -200,7 +195,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
 
   Widget _buildDateField(String labelText) {
     return Container(
-      padding: const EdgeInsets.only(top: 16.0), // Margin between fields
+      padding: const EdgeInsets.only(top: 16.0),
       child: GestureDetector(
         onTap: () => _selectDate(context),
         child: InputDecorator(
@@ -238,7 +233,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Account Recovery')),
-      backgroundColor: Theme.of(context).colorScheme.background, // Set the same background as ForgotPasswordPage
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
@@ -269,11 +264,11 @@ class _RecoveryPageState extends State<RecoveryPage> {
                   ElevatedButton(
                     onPressed: _nextStep,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, // White background for button
-                      foregroundColor: Colors.black, // Black text color for button
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: Text(_currentStep == 1 ? 'Reset Password' : 'Next'),

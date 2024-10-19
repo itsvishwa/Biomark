@@ -131,7 +131,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Text('Reset Password'),

@@ -152,7 +152,7 @@ class RegisterPageStep1State extends State<RegisterPageStep1> {
 
   Widget _buildDateField(String labelText, DateTime? selectedDate, Function(BuildContext) onSelect) {
     return Container(
-      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0), // Margin between fields
+      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
       child: GestureDetector(
         onTap: () => onSelect(context),
         child: InputDecorator(
@@ -172,7 +172,7 @@ class RegisterPageStep1State extends State<RegisterPageStep1> {
 
   Widget _buildTimeField(String labelText, TimeOfDay? selectedTime, Function(BuildContext) onSelect) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16.0), // Margin between fields
+      margin: const EdgeInsets.only(bottom: 16.0),
       child: GestureDetector(
         onTap: () => onSelect(context),
         child: InputDecorator(
