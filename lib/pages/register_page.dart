@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:biomark/pages/register_step_1_page.dart';
 import 'package:biomark/pages/register_step_2_page.dart';
 import 'package:biomark/pages/register_step_3_page.dart';
+import 'package:biomark/pages/login_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -89,6 +90,11 @@ class _RegisterPageState extends State<RegisterPage> {
   void _submitForm() {
     print('Submitting form...');
 
+    if (model['dateOfBirth'] is DateTime) {
+      final date = model['dateOfBirth'] as DateTime;
+      model['dateOfBirth'] = "${date.year}-${date.month}-${date.day}";
+    }
+
     if (model['timeOfBirth'] is TimeOfDay) {
       final time = model['timeOfBirth'] as TimeOfDay;
       model['timeOfBirth'] = "${time.hour}:${time.minute}";
@@ -125,7 +131,10 @@ class _RegisterPageState extends State<RegisterPage> {
           account = {};
           _currentStep = 0;
         });
-        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
       }).catchError((error) {
         print('Failed to register user: $error');
       });
@@ -178,7 +187,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   const Text("Already have an account?"),
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
                     },
                     child: Text(
                       "Login Now",

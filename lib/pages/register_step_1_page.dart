@@ -192,7 +192,6 @@ class RegisterPageStep1State extends State<RegisterPageStep1> {
 
   @override
   void dispose() {
-    // Dispose controllers
     _locationController.dispose();
     _bloodGroupController.dispose();
     _sexController.dispose();

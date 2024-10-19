@@ -1,11 +1,9 @@
-import 'package:biomark/components/custom_button.dart';
-import 'package:biomark/components/custom_text_field.dart';
-import 'package:biomark/pages/register_page.dart';
-import 'package:biomark/pages/profile_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:crypto/crypto.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'package:biomark/pages/profile_page.dart';
+import 'package:biomark/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,160 +13,143 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void logInHandler() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+  String? _emailError;
+  String? _passwordError;
 
-    if (email.isEmpty || password.isEmpty) {
-      // Show error message if fields are empty
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in both fields')),
-      );
-      return;
-    }
+  final RegExp _emailRegExp = RegExp(
+    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+  );
+
+  void _login() async {
+    setState(() {
+      _emailError = _validateEmail(_emailController.text);
+      _passwordError = _passwordController.text.isEmpty ? 'Password is required' : null;
+    });
+
+    if (_emailError != null || _passwordError != null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
-      // Retrieve user data from Firestore
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
+      final hashedPassword = _hashPassword(_passwordController.text);
+      final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .where('account.email', isEqualTo: email)
+          .where('account.email', isEqualTo: _emailController.text)
+          .where('account.password', isEqualTo: hashedPassword)
           .get();
 
-      if (snapshot.docs.isEmpty) {
+      if (querySnapshot.docs.isNotEmpty) {
+        // Successful login
+        final userDoc = querySnapshot.docs.first;
+        print('Login successful for user: ${userDoc['model']}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User not found')),
+          SnackBar(
+            content: const Text('Login Successful!'),
+            duration: const Duration(seconds: 2),
+          ),
         );
-        return;
-      }
-
-      final userData = snapshot.docs.first.data() as Map<String, dynamic>;
-
-      // Compare the hashed password with the stored password
-      final hashedPassword = _hashData(password);
-      if (userData['account']['password'] == hashedPassword) {
-        // Successfully logged in
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful')),
-        );
-        // Navigate to the next page or home page
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const ProfilePage()),
         );
       } else {
+        // Invalid credentials
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Incorrect password')),
+          SnackBar(
+            content: const Text('Invalid email or password.'),
+            duration: const Duration(seconds: 2),
+          ),
         );
       }
-    } catch (e) {
-      print('Error logging in: $e');
+    } catch (error) {
+      print('Failed to login: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred, please try again')),
+        SnackBar(
+          content: const Text('Login failed. Please try again later.'),
+          duration: const Duration(seconds: 2),
+        ),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  void navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterPage()),
-    );
-  }
-
-  // Function to hash data using SHA-256
-  String _hashData(String data) {
-    final bytes = utf8.encode(data);
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
     final digest = sha256.convert(bytes);
     return digest.toString();
+  }
+
+  String? _validateEmail(String email) {
+    if (email.isEmpty) {
+      return 'Email is required';
+    } else if (!_emailRegExp.hasMatch(email)) {
+      return 'Enter a valid email address';
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 50),
+          padding: const EdgeInsets.all(25.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Icon(
-                Icons.account_circle,
+                Icons.lock,
                 size: 80,
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
-
-              // Space
               const SizedBox(height: 25),
-
-              // Title
               const Text(
-                "Login Here",
+                "Login to Your Account",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
-              // Space
-              const SizedBox(height: 50),
-
-              // Email Field
-              CustomTextField(
-                hintText: "Email",
-                obscureText: false,
-                controller: emailController,
-              ),
-
-              // Space
-              const SizedBox(height: 10),
-
-              // Password Field
-              CustomTextField(
-                hintText: "Password",
-                obscureText: true,
-                controller: passwordController,
-              ),
-
-              // Space
-              const SizedBox(height: 10),
-
-              // Forget Password
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    "Forget Password?",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+              const SizedBox(height: 25),
+              _buildTextField("Email", _emailController, _emailError),
+              _buildTextField("Password", _passwordController, _passwordError, obscureText: true),
+              const SizedBox(height: 20),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        backgroundColor: Colors.white, // Set background color to white
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.black), // Set text color to black
+                      ),
                     ),
-                  ),
-                ],
-              ),
-
-              // Space
-              const SizedBox(height: 25),
-
-              // Sign In Button
-              CustomButton(text: "Log In", onTap: logInHandler),
-
-              // Space
-              const SizedBox(height: 25),
-
-              // Don't Have an Account
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Don't have an account?"),
                   TextButton(
-                    onPressed: navigateToRegister,
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegisterPage()),
+                      );
+                    },
                     child: Text(
-                      " Register Now",
+                      "Register Now",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.inversePrimary,
@@ -179,6 +160,21 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String labelText, TextEditingController controller, String? errorText, {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: const OutlineInputBorder(),
+          errorText: errorText,
         ),
       ),
     );

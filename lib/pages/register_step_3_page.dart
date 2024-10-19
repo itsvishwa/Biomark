@@ -8,12 +8,10 @@ class RegisterPageStep3 extends StatefulWidget {
 }
 
 class RegisterPageStep3State extends State<RegisterPageStep3> {
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  String? _nameError;
   String? _emailError;
   String? _passwordError;
   String? _confirmPasswordError;
@@ -22,17 +20,11 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
   void initState() {
     super.initState();
 
-    _nameController.addListener(validateName);
     _emailController.addListener(validateEmail);
     _passwordController.addListener(validatePassword);
     _confirmPasswordController.addListener(validateConfirmPassword);
   }
 
-  void validateName() {
-    setState(() {
-      _nameError = _nameController.text.isEmpty ? 'Name is required.' : null;
-    });
-  }
 
   void validateEmail() {
     setState(() {
@@ -73,7 +65,6 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
 
   Map<String, dynamic> saveData() {
     return {
-      'name': _nameController.text,
       'email': _emailController.text,
       'password': _passwordController.text,
     };
@@ -103,7 +94,6 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTextField("Name", _nameController, false, _nameError),
         _buildTextField("Email", _emailController, false, _emailError),
         _buildTextField("Password", _passwordController, true, _passwordError),
         _buildTextField("Confirm Password", _confirmPasswordController, true, _confirmPasswordError),
@@ -113,7 +103,6 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
