@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For formatting the date and time
+import 'package:intl/intl.dart';
 
 class RegisterPageStep1 extends StatefulWidget {
   const RegisterPageStep1({Key? key}) : super(key: key);

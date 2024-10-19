@@ -100,6 +100,11 @@ class _RegisterPageState extends State<RegisterPage> {
       model['timeOfBirth'] = "${time.hour}:${time.minute}";
     }
 
+    if (recovery['dob'] is DateTime) {
+      final date = recovery['dob'] as DateTime;
+      recovery['dob'] = "${date.year}-${date.month}-${date.day}";
+    }
+
     if (_validateForm(model, 'Model') && _validateForm(recovery, 'Recovery') && _validateForm(account, 'Account')) {
       if (account['password'] != null) {
         final hashedPassword = _hashData(account['password']);

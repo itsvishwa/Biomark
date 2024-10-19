@@ -9,7 +9,7 @@ class RegisterPageStep2 extends StatefulWidget {
 }
 
 class RegisterPageStep2State extends State<RegisterPageStep2> {
-  // DateTime? _selectedDate;
+  DateTime? _selectedDate;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _motherMaidenNameController = TextEditingController();
   final TextEditingController _bestFriendNameController = TextEditingController();
@@ -26,7 +26,7 @@ class RegisterPageStep2State extends State<RegisterPageStep2> {
 
   Map<String, dynamic> saveData() {
     return {
-      // 'dob': _selectedDate,
+      'dob': _selectedDate,
       'name': _nameController.text,
       'motherMaidenName': _motherMaidenNameController.text,
       'bestFriendName': _bestFriendNameController.text,
@@ -107,7 +107,7 @@ class RegisterPageStep2State extends State<RegisterPageStep2> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // _buildDateField("Date of Birth", _selectedDate, _selectDate),
+        _buildDateField("Date of Birth", _selectedDate, _selectDate),
         _buildTextField("Name", _nameController, _nameError),
         _buildTextField("Mother's Maiden Name", _motherMaidenNameController, _motherMaidenNameError),
         _buildTextField("Childhood Best Friend's Name", _bestFriendNameController, _bestFriendNameError),
@@ -118,39 +118,39 @@ class RegisterPageStep2State extends State<RegisterPageStep2> {
     );
   }
 
-  // Future<void> _selectDate(BuildContext context) async {
-  //   final DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now(),
-  //     firstDate: DateTime(1900),
-  //     lastDate: DateTime.now(),
-  //   );
-  //   if (picked != null && picked != _selectedDate) {
-  //     setState(() {
-  //       _selectedDate = picked;
-  //     });
-  //   }
-  // }
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
-  // Widget _buildDateField(String labelText, DateTime? selectedDate, Function(BuildContext) onSelect) {
-  //   return Container(
-  //     padding: const EdgeInsets.only(top: 16.0, bottom: 12.0), // Margin between fields
-  //     child: GestureDetector(
-  //       onTap: () => onSelect(context),
-  //       child: InputDecorator(
-  //         decoration: InputDecoration(
-  //           labelText: labelText,
-  //           labelStyle: TextStyle(color: Colors.grey),
-  //           border: OutlineInputBorder(),
-  //           contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
-  //         ),
-  //         child: Text(selectedDate != null
-  //             ? DateFormat.yMd().format(selectedDate)
-  //             : 'Select date'),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildDateField(String labelText, DateTime? selectedDate, Function(BuildContext) onSelect) {
+    return Container(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 12.0), // Margin between fields
+      child: GestureDetector(
+        onTap: () => onSelect(context),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: TextStyle(color: Colors.grey),
+            border: OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+          ),
+          child: Text(selectedDate != null
+              ? DateFormat.yMd().format(selectedDate)
+              : 'Select date'),
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
