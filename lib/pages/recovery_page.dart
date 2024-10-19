@@ -238,6 +238,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Account Recovery')),
+      backgroundColor: Theme.of(context).colorScheme.background, // Set the same background as ForgotPasswordPage
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
@@ -267,6 +268,14 @@ class _RecoveryPageState extends State<RecoveryPage> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _nextStep,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, // White background for button
+                      foregroundColor: Colors.black, // Black text color for button
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                      ),
+                    ),
                     child: Text(_currentStep == 1 ? 'Reset Password' : 'Next'),
                   ),
                 ],

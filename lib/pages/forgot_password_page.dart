@@ -126,8 +126,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _resetPassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                        ),
+                      ),
                       child: const Text('Reset Password'),
                     ),
+
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
