@@ -26,6 +26,7 @@ class RegisterPageStep3State extends State<RegisterPageStep3> {
       obscureText: obscureText,
       decoration: InputDecoration(
         labelText: labelText,
+        labelStyle: TextStyle(color: Colors.grey),
         border: OutlineInputBorder(),
       ),
     );

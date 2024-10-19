@@ -28,6 +28,7 @@ class RegisterPageStep2State extends State<RegisterPageStep2> {
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
+        labelStyle: TextStyle(color: Colors.grey),
         border: OutlineInputBorder(),
       ),
     );

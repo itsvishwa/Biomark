@@ -33,11 +33,15 @@ class RegisterPageStep1State extends State<RegisterPageStep1> {
   }
 
   Widget _buildTextField(String labelText, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: Colors.grey),
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }
@@ -86,31 +90,41 @@ class RegisterPageStep1State extends State<RegisterPageStep1> {
   }
 
   Widget _buildDateField(String labelText, DateTime? selectedDate, Function(BuildContext) onSelect) {
-    return GestureDetector(
-      onTap: () => onSelect(context),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(),
+    return Container(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 16.0), // Margin between fields
+      child: GestureDetector(
+        onTap: () => onSelect(context),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: TextStyle(color: Colors.grey),
+            border: OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+          ),
+          child: Text(selectedDate != null
+              ? DateFormat.yMd().format(selectedDate)
+              : 'Select date'),
         ),
-        child: Text(selectedDate != null
-            ? DateFormat.yMd().format(selectedDate)
-            : 'Select date'),
       ),
     );
   }
 
   Widget _buildTimeField(String labelText, TimeOfDay? selectedTime, Function(BuildContext) onSelect) {
-    return GestureDetector(
-      onTap: () => onSelect(context),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0), // Margin between fields
+      child: GestureDetector(
+        onTap: () => onSelect(context),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: labelText,
+            labelStyle: TextStyle(color: Colors.grey),
+            border: OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+          ),
+          child: Text(selectedTime != null
+              ? selectedTime.format(context)
+              : 'Select time'),
         ),
-        child: Text(selectedTime != null
-            ? selectedTime.format(context)
-            : 'Select time'),
       ),
     );
   }
