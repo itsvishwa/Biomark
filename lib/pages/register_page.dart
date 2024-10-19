@@ -94,7 +94,6 @@ class _RegisterPageState extends State<RegisterPage> {
       model['timeOfBirth'] = "${time.hour}:${time.minute}";
     }
 
-    // Validation checks
     if (_validateForm(model, 'Model') && _validateForm(recovery, 'Recovery') && _validateForm(account, 'Account')) {
       if (account['password'] != null) {
         final hashedPassword = _hashData(account['password']);
@@ -133,22 +132,20 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  // Function to hash data using SHA-256
   String _hashData(String data) {
     final bytes = utf8.encode(data);
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
 
-  // Function to validate form data
   bool _validateForm(Map<String, dynamic> formData, String formName) {
     for (var entry in formData.entries) {
       if (entry.value == null || (entry.value is String && entry.value.isEmpty)) {
         print('$formName field "${entry.key}" is required.');
-        return false; // Form is invalid
+        return false;
       }
     }
-    return true; // Form is valid
+    return true;
   }
 
   @override
@@ -238,7 +235,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // Keys for accessing form states
   final GlobalKey<RegisterPageStep1State> _step1Key = GlobalKey<RegisterPageStep1State>();
   final GlobalKey<RegisterPageStep2State> _step2Key = GlobalKey<RegisterPageStep2State>();
   final GlobalKey<RegisterPageStep3State> _step3Key = GlobalKey<RegisterPageStep3State>();
