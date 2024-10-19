@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-
 import 'package:biomark/pages/register_step_1_page.dart';
 import 'package:biomark/pages/register_step_2_page.dart';
 import 'package:biomark/pages/register_step_3_page.dart';
@@ -21,8 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Map<String, dynamic> model = {};
   Map<String, dynamic> recovery = {};
   Map<String, dynamic> account = {};
-
-
 
   void _nextStep() {
     if (_currentStep == 0) {
@@ -97,71 +94,61 @@ class _RegisterPageState extends State<RegisterPage> {
       model['timeOfBirth'] = "${time.hour}:${time.minute}";
     }
 
-    model.forEach((key, value) {
-      if (value == null) {
-        print('$key is null, please fill out this field.');
-        return;
+    // Validation checks
+    if (_validateForm(model, 'Model') && _validateForm(recovery, 'Recovery') && _validateForm(account, 'Account')) {
+      if (account['password'] != null) {
+        final hashedPassword = _hashData(account['password']);
+        account['password'] = hashedPassword;
       }
-    });
 
-    recovery.forEach((key, value) {
-      if (value == null) {
-        print('$key is null, please fill out this field.');
-        return;
-      }
-    });
-
-    account.forEach((key, value) {
-      if (value == null) {
-        print('$key is null, please fill out this field.');
-        return;
-      }
-    });
-
-    if (account['password'] != null) {
-      final hashedPassword = _hashData(account['password']);
-      account['password'] = hashedPassword;
-    }
-
-    recovery = recovery.map((key, value) {
-      if (value != null) {
-        return MapEntry(key, _hashData(value));
-      }
-      return MapEntry(key, value); // return the same key-value pair if value is null
-    });
-
-    FirebaseFirestore.instance.collection('users').add({
-      'model': model,
-      'recovery': recovery,
-      'account': account,
-    }).then((_) {
-      print('User registered successfully!');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('User Registered Successfully!'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-
-      setState(() {
-        model = {};
-        recovery = {};
-        account = {};
-        _currentStep = 0;
+      recovery = recovery.map((key, value) {
+        if (value != null) {
+          return MapEntry(key, _hashData(value));
+        }
+        return MapEntry(key, value);
       });
-      Navigator.pop(context);
-    }).catchError((error) {
-      print('Failed to register user: $error');
-    });
-  }
 
+      FirebaseFirestore.instance.collection('users').add({
+        'model': model,
+        'recovery': recovery,
+        'account': account,
+      }).then((_) {
+        print('User registered successfully!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('User Registered Successfully!'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        setState(() {
+          model = {};
+          recovery = {};
+          account = {};
+          _currentStep = 0;
+        });
+        Navigator.pop(context);
+      }).catchError((error) {
+        print('Failed to register user: $error');
+      });
+    }
+  }
 
   // Function to hash data using SHA-256
   String _hashData(String data) {
     final bytes = utf8.encode(data);
     final digest = sha256.convert(bytes);
     return digest.toString();
+  }
+
+  // Function to validate form data
+  bool _validateForm(Map<String, dynamic> formData, String formName) {
+    for (var entry in formData.entries) {
+      if (entry.value == null || (entry.value is String && entry.value.isEmpty)) {
+        print('$formName field "${entry.key}" is required.');
+        return false; // Form is invalid
+      }
+    }
+    return true; // Form is valid
   }
 
   @override
