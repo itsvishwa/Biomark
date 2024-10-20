@@ -40,14 +40,17 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final hashedPassword = _hashPassword(_passwordController.text);
       final querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('account.email', isEqualTo: _emailController.text)
-          .where('account.password', isEqualTo: hashedPassword)
+          .collection('accounts')
+          .where('email', isEqualTo: _emailController.text)
+          .where('password', isEqualTo: hashedPassword)
           .get();
+
+      print('Login query results: ${querySnapshot.docs.length}');
 
       if (querySnapshot.docs.isNotEmpty) {
         final userDoc = querySnapshot.docs.first;
-        print('Login successful for user: ${userDoc['account']['email']}');
+        final id = userDoc.id;
+        print('Login successful for user: ${userDoc}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Login Successful!'),
@@ -56,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ProfilePage(email: userDoc['account']['email'])),
+          MaterialPageRoute(builder: (context) => ProfilePage(id: id)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

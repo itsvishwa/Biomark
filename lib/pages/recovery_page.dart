@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:biomark/pages/login_page.dart';
 
 class RecoveryPage extends StatefulWidget {
-  final String email;
-  const RecoveryPage({Key? key, required this.email}) : super(key: key);
+  final String id;
+  const RecoveryPage({Key? key, required this.id}) : super(key: key);
 
   @override
   _RecoveryPageState createState() => _RecoveryPageState();
@@ -80,8 +80,8 @@ class _RecoveryPageState extends State<RecoveryPage> {
 
     try {
       final query = await FirebaseFirestore.instance
-          .collection('users')
-          .where('account.email', isEqualTo: widget.email)
+          .collection('recovery')
+          .where('accountId', isEqualTo: widget.id)
           .limit(1)
           .get();
 
@@ -90,8 +90,8 @@ class _RecoveryPageState extends State<RecoveryPage> {
         return;
       }
 
-      final userDoc = query.docs.first;
-      final recoveryData = userDoc.data()['recovery'];
+      final recoveryData = query.docs.first;
+      // final recoveryData = userDoc.data()['recovery'];
 
       final hashedName = _hashData(_nameController.text);
       final hashedDOB = _hashData(DateFormat('yyyy-MM-dd').format(_selectedDOB!));
@@ -139,15 +139,14 @@ class _RecoveryPageState extends State<RecoveryPage> {
 
     try {
       final query = await FirebaseFirestore.instance
-          .collection('users')
-          .where('account.email', isEqualTo: widget.email)
-          .limit(1)
+          .collection('accounts')
+          .doc(widget.id)  // Use widget.id
           .get();
 
-      if (query.docs.isNotEmpty) {
-        final userDoc = query.docs.first;
-        await userDoc.reference.update({
-          'account.password': _hashData(_newPasswordController.text),
+      if (query.exists) {
+        print('User found with id: ${widget.id}');
+        await query.reference.update({
+          'password': _hashData(_newPasswordController.text),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -159,7 +158,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       } else {
-        _showError('No user found with the provided email.');
+        _showError('No user found with the provided id.');
       }
     } catch (e) {
       _showError('An error occurred while resetting the password.');

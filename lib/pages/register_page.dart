@@ -87,7 +87,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return null;
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     print('Submitting form...');
 
     if (model['dateOfBirth'] is DateTime) {
@@ -118,11 +118,21 @@ class _RegisterPageState extends State<RegisterPage> {
         return MapEntry(key, value);
       });
 
-      FirebaseFirestore.instance.collection('users').add({
-        'model': model,
-        'recovery': recovery,
-        'account': account,
-      }).then((_) {
+      try {
+        DocumentReference accountRef = await FirebaseFirestore.instance.collection('accounts').add(account);
+
+        String accountId = accountRef.id;
+
+        await FirebaseFirestore.instance.collection('models').add({
+          'accountId': accountId,
+          ...model,
+        });
+
+        await FirebaseFirestore.instance.collection('recovery').add({
+          'accountId': accountId,
+          ...recovery,
+        });
+
         print('User registered successfully!');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -130,21 +140,24 @@ class _RegisterPageState extends State<RegisterPage> {
             duration: const Duration(seconds: 2),
           ),
         );
+
         setState(() {
           model = {};
           recovery = {};
           account = {};
           _currentStep = 0;
         });
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
-      }).catchError((error) {
+      } catch (error) {
         print('Failed to register user: $error');
-      });
+      }
     }
   }
+
 
   String _hashData(String data) {
     final bytes = utf8.encode(data);

@@ -3,14 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:biomark/pages/login_page.dart';
 
 class ProfilePage extends StatelessWidget {
-  final String email;
+  final String id;
 
-  const ProfilePage({super.key, required this.email});
+  const ProfilePage({super.key, required this.id});
 
   Future<Map<String, dynamic>> _getUserData() async {
     final querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('account.email', isEqualTo: email)
+        .collection('models')
+        .where('accountId', isEqualTo: id)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -20,35 +20,89 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
-  Future<void> _unsubscribeUser(BuildContext context) async {
+  // Future<void> _unsubscribeUser(BuildContext context) async {
+  //   try {
+  //     final querySnapshot = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .where('account.email', isEqualTo: email)
+  //         .get();
+
+  //     if (querySnapshot.docs.isNotEmpty) {
+  //       await querySnapshot.docs.first.reference.delete();
+
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('You have been unsubscribed.')),
+  //       );
+
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const LoginPage()),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('User not found.')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error: $e')),
+  //     );
+  //   }
+  // }
+
+  Future<void> _unsubscribeUser(BuildContext context, String accountId) async {
     try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('account.email', isEqualTo: email)
+      // Step 1: Delete the account document from the 'accounts' collection using the accountId
+      final accountDoc = await FirebaseFirestore.instance
+          .collection('accounts')
+          .doc(accountId)
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        await querySnapshot.docs.first.reference.delete();
+      if (accountDoc.exists) {
+        await accountDoc.reference.delete();
 
+        // Step 2: Delete the corresponding 'model' document using the accountId
+        final modelSnapshot = await FirebaseFirestore.instance
+            .collection('models')
+            .where('accountId', isEqualTo: accountId)
+            .get();
+        if (modelSnapshot.docs.isNotEmpty) {
+          await modelSnapshot.docs.first.reference.delete();
+        }
+
+        // Step 3: Delete the corresponding 'recovery' document using the accountId
+        final recoverySnapshot = await FirebaseFirestore.instance
+            .collection('recovery')
+            .where('accountId', isEqualTo: accountId)
+            .get();
+        if (recoverySnapshot.docs.isNotEmpty) {
+          await recoverySnapshot.docs.first.reference.delete();
+        }
+
+        // Notify the user about successful unsubscription
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('You have been unsubscribed.')),
         );
 
+        // Navigate back to the login page
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       } else {
+        // Handle case where the account is not found
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User not found.')),
+          const SnackBar(content: Text('Account not found.')),
         );
       }
     } catch (e) {
+      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +122,7 @@ class ProfilePage extends StatelessWidget {
           }
 
           final userData = snapshot.data!;
-          final model = userData['model'] as Map<String, dynamic>;
+          final model = userData as Map<String, dynamic>;
 
           return Center(
             child: Column(
@@ -79,7 +133,6 @@ class ProfilePage extends StatelessWidget {
                   style: TextStyle(fontSize: 24),
                 ),
                 const SizedBox(height: 20),
-                _buildProfileItem('Email', userData['account']['email']),
                 _buildProfileItem('Blood Group', model['bloodGroup']),
                 _buildProfileItem('Date of Birth', model['dateOfBirth']),
                 _buildProfileItem('Ethnicity', model['ethnicity']),
@@ -108,7 +161,7 @@ class ProfilePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () => _unsubscribeUser(context),
+                  onPressed: () => _unsubscribeUser(context, id),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,

@@ -31,16 +31,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     try {
       final userQuery = await FirebaseFirestore.instance
-          .collection('users')
-          .where('account.email', isEqualTo: _emailController.text)
+          .collection('accounts')
+          .where('email', isEqualTo: _emailController.text)
           .get();
 
       if (userQuery.docs.isNotEmpty) {
         final userDoc = userQuery.docs.first;
+        final id = userDoc.id;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => RecoveryPage(email: userDoc['account']['email']),
+            builder: (context) => RecoveryPage(id: id),
           ),
         );
       } else {
