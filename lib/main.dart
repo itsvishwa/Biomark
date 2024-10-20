@@ -1,4 +1,4 @@
-import 'package:biomark/pages/login_page.dart';
+import 'package:biomark/pages/home_page.dart';
 import 'package:biomark/theme/dark_mode.dart';
 import 'package:biomark/theme/light_mode.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +22,6 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: lightMode,
         darkTheme: darkMode,
-        home: const LoginPage());
+        home: const HomePage());
   }
 }
