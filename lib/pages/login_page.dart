@@ -1,7 +1,10 @@
-import 'package:biomark/components/custom_button.dart';
-import 'package:biomark/components/custom_text_field.dart';
-import 'package:biomark/pages/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'package:biomark/pages/profile_page.dart';
+import 'package:biomark/pages/register_page.dart';
+import 'package:biomark/pages/forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,112 +14,186 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  void logInHandler() {}
-  void navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => RegisterPage()),
-    );
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  String? _emailError;
+  String? _passwordError;
+
+  final RegExp _emailRegExp = RegExp(
+    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+  );
+
+  void _login() async {
+    setState(() {
+      _emailError = _validateEmail(_emailController.text);
+      _passwordError = _passwordController.text.isEmpty ? 'Password is required' : null;
+    });
+
+    if (_emailError != null || _passwordError != null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final hashedPassword = _hashPassword(_passwordController.text);
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('accounts')
+          .where('email', isEqualTo: _emailController.text)
+          .where('password', isEqualTo: hashedPassword)
+          .get();
+
+      print('Login query results: ${querySnapshot.docs.length}');
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final userDoc = querySnapshot.docs.first;
+        final id = userDoc.id;
+        print('Login successful for user: ${userDoc}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Login Successful!'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage(id: id)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Invalid email or password.'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (error) {
+      print('Failed to login: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Login failed. Please try again later.'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  String? _validateEmail(String email) {
+    if (email.isEmpty) {
+      return 'Email is required';
+    } else if (!_emailRegExp.hasMatch(email)) {
+      return 'Enter a valid email address';
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Theme.of(context).colorScheme.background,
-        body: Center(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(25.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // logo
-                  Icon(
-                    Icons.account_circle,
-                    size: 80,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.lock,
+                size: 80,
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+              const SizedBox(height: 25),
+              const Text(
+                "Login to Your Account",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 25),
+              _buildTextField("Email", _emailController, _emailError),
+              _buildTextField("Password", _passwordController, _passwordError, obscureText: true),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                  );
+                },
+                child: Text(
+                  "Forgot Password?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.inversePrimary,
                   ),
-
-                  // space
-                  const SizedBox(height: 25),
-
-                  // Title
-                  const Text(
-                    "Login Here",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        backgroundColor: Colors.white, // Set background color to white
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.black), // Set text color to black
+                      ),
+                    ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account?"),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegisterPage()),
+                      );
+                    },
+                    child: Text(
+                      "Register Now",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                      ),
                     ),
                   ),
-
-                  // space
-                  const SizedBox(height: 50),
-
-                  // Email Field
-                  CustomTextField(
-                    hintText: "Email",
-                    obscureText: false,
-                    controller: emailController,
-                  ),
-
-                  // space
-                  const SizedBox(height: 10),
-
-                  // Password Field
-                  CustomTextField(
-                    hintText: "Password",
-                    obscureText: true,
-                    controller: passwordController,
-                  ),
-
-                  // space
-                  const SizedBox(height: 10),
-
-                  // forget password
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "Forget Password?",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // space
-                  const SizedBox(height: 25),
-
-                  // sigin in button
-                  CustomButton(text: "Log In", onTap: logInHandler),
-
-                  // space
-                  const SizedBox(height: 25),
-
-                  // don't have an account
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account?"),
-                      TextButton(
-                          onPressed: navigateToRegister,
-                          child: Text(" Register Now",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .inversePrimary,
-                              )))
-                    ],
-                  )
                 ],
               ),
-            ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String labelText, TextEditingController controller, String? errorText, {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: const OutlineInputBorder(),
+          errorText: errorText,
+        ),
+      ),
+    );
   }
 }
