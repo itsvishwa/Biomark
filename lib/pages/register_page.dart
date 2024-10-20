@@ -221,41 +221,42 @@ class _RegisterPageState extends State<RegisterPage> {
                 ],
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Stepper(
-                      currentStep: _currentStep,
-                      onStepContinue: _nextStep,
-                      onStepCancel: _previousStep,
-                      steps: [
-                        Step(
-                          title: const Text("Step 1: Model Data"),
-                          content: RegisterPageStep1(key: _step1Key),
-                          isActive: _currentStep >= 0,
-                          state: _currentStep > 0
-                              ? StepState.complete
-                              : StepState.indexed,
-                        ),
-                        Step(
-                          title: const Text("Step 2: Account Recovery Data"),
-                          content: RegisterPageStep2(key: _step2Key),
-                          isActive: _currentStep >= 1,
-                          state: _currentStep > 1
-                              ? StepState.complete
-                              : StepState.indexed,
-                        ),
-                        Step(
-                          title: const Text("Step 3: Email & Password"),
-                          content: RegisterPageStep3(key: _step3Key),
-                          isActive: _currentStep >= 2,
-                          state: _currentStep == 2
-                              ? StepState.complete
-                              : StepState.indexed,
-                        ),
-                      ],
+                child: Stepper(
+                  currentStep: _currentStep,
+                  onStepContinue: _nextStep,
+                  onStepCancel: _previousStep,
+                  steps: [
+                    Step(
+                      title: const Text("Step 1: Model Data"),
+                      content: SingleChildScrollView(
+                        child: RegisterPageStep1(key: _step1Key),
+                      ),
+                      isActive: _currentStep >= 0,
+                      state: _currentStep > 0
+                          ? StepState.complete
+                          : StepState.indexed,
                     ),
-                  ),
+                    Step(
+                      title: const Text("Step 2: Account Recovery Data"),
+                      content: SingleChildScrollView(
+                        child: RegisterPageStep2(key: _step2Key),
+                      ),
+                      isActive: _currentStep >= 1,
+                      state: _currentStep > 1
+                          ? StepState.complete
+                          : StepState.indexed,
+                    ),
+                    Step(
+                      title: const Text("Step 3: Email & Password"),
+                      content: SingleChildScrollView(
+                        child: RegisterPageStep3(key: _step3Key),
+                      ),
+                      isActive: _currentStep >= 2,
+                      state: _currentStep == 2
+                          ? StepState.complete
+                          : StepState.indexed,
+                    ),
+                  ],
                 ),
               ),
             ],
