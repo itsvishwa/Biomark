@@ -3,12 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:biomark/pages/login_page.dart';
 
 class ProfilePage extends StatelessWidget {
-  final String email; // Pass the user's email to identify the correct user in Firestore.
+  final String email;
 
   const ProfilePage({super.key, required this.email});
 
   Future<Map<String, dynamic>> _getUserData() async {
-    // Fetch the user's document from Firestore based on their email
     final querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('account.email', isEqualTo: email)
@@ -80,7 +79,6 @@ class ProfilePage extends StatelessWidget {
                   style: TextStyle(fontSize: 24),
                 ),
                 const SizedBox(height: 20),
-                // Displaying user's model data
                 _buildProfileItem('Email', userData['account']['email']),
                 _buildProfileItem('Blood Group', model['bloodGroup']),
                 _buildProfileItem('Date of Birth', model['dateOfBirth']),
@@ -99,11 +97,11 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // White background
-                    foregroundColor: Colors.black, // Black text
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: const Text('Log Out'),
@@ -112,8 +110,8 @@ class ProfilePage extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => _unsubscribeUser(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Red background to indicate danger
-                    foregroundColor: Colors.white, // White text
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

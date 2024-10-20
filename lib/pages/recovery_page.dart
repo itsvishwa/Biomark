@@ -103,13 +103,11 @@ class _RecoveryPageState extends State<RecoveryPage> {
         'ownAnswer': _hashData(_customAnswerController.text),
       };
 
-      // Validate Name and DOB
       if (recoveryData['name'] != hashedName || recoveryData['dob'] != hashedDOB) {
         _showError('Name or Date of Birth does not match our records.');
         return;
       }
 
-      // Count how many recovery answers are correct
       int correctAnswers = 0;
       for (var key in hashedAnswers.keys) {
         if (recoveryData[key] == hashedAnswers[key]) {
@@ -117,7 +115,6 @@ class _RecoveryPageState extends State<RecoveryPage> {
         }
       }
 
-      // Allow to proceed if at least two answers are correct
       if (correctAnswers >= 2) {
         setState(() {
           _currentStep++;
